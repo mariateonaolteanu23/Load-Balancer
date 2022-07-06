@@ -1,0 +1,52 @@
+#OLTEANU MARIA-TEONA 311CA
+
+Am implementat un load balancer folosind 2 structuri de date:
+-un hash ring, care ajuta la distribuirea obiectelor si a replicilor serverelor
+-un array ce contine memoria serverelor din load balancer(max 99999 de elemente) 
+
+HASH_RING
+
+Pentru hash ring am folosit o structura care imi permite sa caut valori si sa le stochez sortate.
+Intr-un buffer sunt stocate in ordinea hash-ului etichetele generate pt fiecare server.
+Vom considera 2 servere vecine, cele ce au etichete vecine pe hash ring.
+
+Gasirea pozitiei unei etichete si cautarea distribuirii unei chei se efectueaza folosind cautare binara.
+Inserarea si eliminarea etichetelor se realizeaza prin shiftarea elementelor.
+Pentru a detrmina id-ului unui server, nu doar eticheta, ma folosesc de formula data.
+In cazul in care capacitatea maxima presupusa este depasita maresc hash ring-ul.
+
+SERVER_MEMORY
+
+Am implementat structura ca pe un hashtable realizat cu liste inlantuite.
+Fiecarui server ii este asociat un hashtable in care stochez obiectele cheie-valoare(structura info).
+Index-ul bucket-ului in care se afla un obiect este generat de hash-ul cheii % numarul maxim de bucket-uri.
+
+Cand adaug o cheie in memoria server-ului verific daca aceasta exista deja.
+Cand elimin un obiect din server eliberez memoria alocata pt structura info si cea a nodului in care am stocat info.
+Pentru a returna valoarea asociata unei chei caut cheia in memoria serverului.Daca aceasta nu exista returnez NULL.
+Pentru a elibera memoria intregii structuri parcurg fiecare bucket existent si elimin toate obiectele stocate.
+Returnez toate obiectele (cheie-valoare) intr-un array, parcurgand tot server-ul.  
+
+LOAD_BALANCER
+
+Pentru a adauga un server in sistem ii initializez memoria si o stochez in array pe pozitia id-ului dat.
+Generez cele 3 etichete pe care le adaug in hash ring.
+Daca exista mai mult de un server in load balancer verific daca exista obiecte ce pot fi remapate.
+Dacă pot fi remapate, obiectele vor fi transferate pe serverul nou, iar serverul vechi le va şterge.
+Aceasta operatie de redistribuire se realizeaza doar intre servere vecine pe hash ring, cu id-uri diferite.
+
+Pentru a adauga un nou obiect trebuie sa determin in ce server il stochez, in functie de hash-ul cheii.
+Serverul responsabil să stocheze obiectul va fi cel mai apropiat de pe hash ring în direcţia acelor de ceas.
+
+Pentru a returna valoare unui obiect determin in ce server este stocat si il caut in memoria acelui server.
+Daca nu exista cheia returnez NULL.
+
+Cand elimin un server din sistem, elimin toate replicile sale de pe hash ring.
+Obiectele stocate pe acest server sunt remapate catre serverele vecine (in sens circular).
+
+Pentru a elibera memoria load balancer-ului eliberez ce am alocat pentru hash ring si array-ul de memrorii.
+
+
+
+
+
